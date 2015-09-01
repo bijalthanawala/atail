@@ -2,6 +2,9 @@
 %include "print.inc"
 %include "callsys.inc"
 
+extern malloc
+extern free
+
 global main
 
 segment .text
@@ -35,13 +38,49 @@ main:
 	cmp	eax, 0
 	jl	err_file_open
 	
+	; Save file descriptor
 	mov	[fd], eax
+	
+	; Allocate memory to store pointers to lines
+	mov	ebx, [nr_lines]
+	shl	ebx, 2		; Multiply by 4 (Pointer size = 32 bits)
+	push 	ebx
+	call	malloc
+	add	esp, 4
+
+	; Handle malloc failure
+	cmp	eax, 0
+	jz	err_malloc_fail
+
+read_rawbuff:
+	mov	ebx, [fd]
+	mov	ecx, rawbuff
+	mov     edx, rawbuffsize
+	call    callsys_readfile	
+	cmp     eax, 0
+	jz 	err_free_finish
+	cmp	eax, -1
+	jz	err_free_finish
+
+	mov	ecx, rawbuff
+	mov     edx, eax
+	call	print_msg
+	
+	jmp	read_rawbuff
 
 
-	; Close the file
-        mov	ebx, [fd]
-	call    callsys_closefile 	
+err_free_finish:
+	; Free all resources and exit gracefully
+	call	free_linequeue
+	call 	close_file
+	jmp 	main_end
 
+
+err_malloc_fail:
+	mov	ecx, err_msg_malloc_fail
+	mov	edx, err_msg_len_malloc_fail
+	call	printn_msg
+	call	close_file
 	jmp 	main_end
 
 err_file_open:
@@ -49,6 +88,7 @@ err_file_open:
 	mov	edx, err_msg_len_file_open
 	call 	print_msg
 	call 	printn_fname
+	jmp 	main_end
 
 	
 main_end:
@@ -93,6 +133,23 @@ get_fname_len_end:
 	ret
 
 ;
+; Procedure: close_file
+;
+close_file:
+        mov	ebx, [fd]
+	call    callsys_closefile 	
+	ret	
+
+;
+; Procedure: free_linequeue
+;
+free_linequeue:
+	push 	dword [linequeue]
+	call 	free
+	add 	esp, 4
+	ret
+
+;
 ; Procedure:	print_fname
 ;
 print_fname:
@@ -111,10 +168,19 @@ printn_fname:
 	ret
 
 segment .data
-	argc dd 0
-	argv dd 0
-	fnameptr dd 0
-	fnamelen dd 0
-	fd	 dd 0
-	err_msg_file_open db "Error opening file : "
-	err_msg_len_file_open equ ($ - err_msg_file_open)
+	argc 		dd 0
+	argv 		dd 0
+	fnameptr 	dd 0
+	fnamelen 	dd 0
+	fd	 	dd 0
+	linequeue 	dd 0	; Ptr to ptr to lines
+	queue_head	dd 0
+	nr_lines	dd 10	; Read last n lines (default = 10)
+	rawbuff         times 100 db 0
+	rawbuffsize	equ ($ - rawbuff)
+
+	; Error messages
+	err_msg_file_open 	db "Error opening file : "
+	err_msg_len_file_open 	equ ($ - err_msg_file_open)
+	err_msg_malloc_fail 	db "Error Allocating Memory"
+	err_msg_len_malloc_fail equ ($ - err_msg_malloc_fail)

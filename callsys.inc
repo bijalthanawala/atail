@@ -3,6 +3,7 @@
 
 extern callsys_openfile
 extern callsys_closefile
+extern callsys_readfile
 extern callsys_writefile
 
 %endif

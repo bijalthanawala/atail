@@ -1,6 +1,7 @@
 %include "callsys.inc"
 
 global print_msg
+global printn_msg
 global print_newline
 
 segment .text
@@ -9,6 +10,7 @@ segment .text
 ; Procedure:	print_msg
 ;
 print_msg:
+	mov ebx, 1
 	call callsys_writefile
 	ret
 

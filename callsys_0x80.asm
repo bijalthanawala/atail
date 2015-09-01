@@ -1,5 +1,6 @@
 global callsys_openfile
 global callsys_closefile
+global callsys_readfile
 global callsys_writefile
 
 segment .text
@@ -29,12 +30,20 @@ callsys_closefile:
 	ret	
 
 ;
+; Procedure:	callsys_readfile
+;
+callsys_readfile:
+	; syscall write: eax=0x03, ebx=fd, ecx=ptr to buff, edx=length
+	mov eax, 3
+	int 80h
+	ret
+
+;
 ; Procedure:	callsys_writefile
 ;
 callsys_writefile:
 	; syscall write: eax=0x04, ebx=fd, ecx=ptr to buff, edx=length
 	mov eax, 4
-	mov ebx, 1
 	int 80h
 	ret
 
