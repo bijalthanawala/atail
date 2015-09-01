@@ -1,0 +1,8 @@
+IN PROGRESS: 
+Calculate length of the filename and save 
+(helpful to print the notification messages)
+
+TODO:
+Implement tail reading the file forwards (the intuitive natural way)
+Implement tail reading the file backwards (suitable for large files)
+
