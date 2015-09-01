@@ -1,4 +1,6 @@
 %include "fcntl.inc"
+%include "print.inc"
+%include "callsys.inc"
 
 global main
 
@@ -29,7 +31,7 @@ main:
 	; Open the file (readonly)
 	mov	ebx, [fnameptr]
 	mov	ecx, O_RDONLY
-	call 	open_file
+	call 	callsys_openfile
 	cmp	eax, 0
 	jl	err_file_open
 	
@@ -38,7 +40,7 @@ main:
 
 	; Close the file
         mov	ebx, [fd]
-	call    close_file 	
+	call    callsys_closefile 	
 
 	jmp 	main_end
 
@@ -46,7 +48,7 @@ err_file_open:
 	mov	ecx, err_msg_file_open
 	mov	edx, err_msg_len_file_open
 	call 	print_msg
-	call 	print_fname
+	call 	printn_fname
 
 	
 main_end:
@@ -80,12 +82,12 @@ get_fname_len:
 	push edi
 	xor ecx, ecx
 	mov edi, eax
-loop_print_fname:
+loop_fname_char:
 	cmp byte [edi], 0
 	jz get_fname_len_end
 	inc ecx
 	inc edi
-	jmp loop_print_fname
+	jmp loop_fname_char
 get_fname_len_end:
 	pop edi
 	ret
@@ -101,38 +103,12 @@ print_fname:
 	ret
 
 ;
-; Procedure:	print_msg
+; Procedure:	printn_fname
 ;
-print_msg:
-	; syscall write: eax=0x04, ebx=fd, ecx=ptr to buff, edx=length
-	mov eax, 4
-	mov ebx, 1
-	int 80h
+printn_fname:
+	call print_fname
+	call print_newline
 	ret
-
-;
-; Procedure: open_file
-;
-; Parameters: ebx: Pointer to the filename, ecx: flags
-;
-; Returns:    eax: File handle if successful, -1 otherwise
-open_file:
-	; syscall open: eax=0x05, ebx=ptr to filename, ecx=flags
-	mov eax, 5
-	int 80h
-	ret	
-
-;
-; Procedure: close_file
-;
-; Parameters: ebx: file descriptor to close
-;
-; Returns:    eax: 0 if successful, -1 otherwise
-close_file:
-	; syscall open: eax=0x06, ebx=file descriptor
-	mov eax, 6
-	int 80h
-	ret	
 
 segment .data
 	argc dd 0
