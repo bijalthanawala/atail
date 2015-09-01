@@ -1,0 +1,16 @@
+atail = tail, written in Assembly
+
+atail is an attempt to rewrite basic functionality
+of `tail` (the standard *nix utility) in :
+(a) Assembly 32 bit
+(b) Assembly 64 bit
+
+This is purely a learning exercise to:
+(a) refresh  32-bit assembly, and 
+(b) learn 64-bit assembly
+
+As mentioned, at this stage targeted functionality
+is bare minimum functionality expected of `tail`
+
+Invitation is open, learn and contribute, in either order.
+
