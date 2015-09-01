@@ -2,7 +2,11 @@ global main
 
 segment .text
 
+;
+; Procedure:	main
+;
 main:
+	; Set variables: argc, argv
 	mov ebp, esp	
 	add ebp, 4		; Skip return address
 	mov ebx, [ebp]  	; Fetch argc
@@ -11,17 +15,27 @@ main:
 	mov ebx, [ebp]		; Fetch argv
 	mov [argv], ebx
 	
+	; Isolate filename from the arguments
 	call get_fnameptr
 	mov [fnameptr], eax
 	
+	; Print the filename
 	call print_fname
         ret	
 
+;
+; Procedure:	get_fnameptr
+;		Isolates filename from the commandline 
+;		arguments
+; Returns:	Ptr to filename in EAX
 get_fnameptr:
 	mov eax, [argv]
 	mov eax, [eax+4]
 	ret
 
+;
+; Procedure:	print_fname
+;
 print_fname:
 	mov edi, [fnameptr]
 	mov ecx, edi 
