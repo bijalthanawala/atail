@@ -1,4 +1,4 @@
-IN PROGRESS: 
+DONE:
 Calculate length of the filename and save 
 (helpful to print the notification messages)
 
