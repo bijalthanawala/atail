@@ -1,8 +1,25 @@
-DONE:
-Calculate length of the filename and save 
-(helpful to print the notification messages)
-
 TODO:
-Implement tail reading the file forwards (the intuitive natural way)
-Implement tail reading the file backwards (suitable for large files)
+- 32bit: Forward implementation
+  Clean the code (refactor, comment and improve readability)
+  Fix Mem leak: Free the queue pointer
+  Enable cmd line arg to accept different number of lines
+  Find way to access std C variable errno
+  Handle EINTR while reading the file
+  Find way to enable valgrind tool on 32bit app and detect any unknown mem leaks
+	
+
+- 32bit:Implement tail reading the file backwards (suitable for large files)
+
+- 64bit: Port 32-bit forward method
+
+- 64bit: Port 32-bit backwards method
+
+
+
+DONE:
+- 32bit: Implement tail reading the file forwards.
+  This is an intuitive natural method, but from the perspective
+  of implementation it inefficient and complex, but the complexity
+  makes this very good for an exercise.
+  Basic implementation complete.
 

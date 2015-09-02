@@ -2,8 +2,8 @@ atail = tail, written in Assembly
 
 atail is an attempt to rewrite basic functionality
 of `tail` (the standard *nix utility) in :
-(a) x86 Assembly 32 bit
-(b) x86 Assembly 64 bit
+(a) x86 Assembly 32 bit and,
+(b) then port (a) to x86 Assembly 64 bit
 
 This is purely a learning exercise to:
 (a) refresh 32-bit assembly, and 
