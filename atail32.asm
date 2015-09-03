@@ -58,7 +58,7 @@ main:
 	jz	err_alloc_queue
 
 	; Save the ptr to allocated mem
-	mov 	[linequeue], eax
+	mov 	[queue], eax
 
 	; Allocate memory for the flexibuff
 	push	dword [flexibuffsize]
@@ -98,6 +98,7 @@ process_char:
 
 dbg_realloc_flexibuff:
 	; ran out of buff, need to realloc
+	;call	dbg_print_reallocing
 	shl	dword [flexibuffsize], 1 ; Double the buffer size	
 	push    dword [flexibuffsize]
 	push    dword [flexibuff]
@@ -111,7 +112,7 @@ dbg_realloc_flexibuff:
 process_lf:
 	mov	ebx, [queuehead]
 	shl	ebx, 2
-	mov	edi, [linequeue]
+	mov	edi, [queue]
 	add	edi, ebx
 	push	edi		;Save queue ptr
 	mov	eax, [edi]
@@ -173,7 +174,8 @@ err_realloc_flexibuff:
 free_resources_finish:
 	; Free all resources and exit gracefully
 	call	free_flexibuff
-	call	free_linequeue
+	call	free_each_queue_element
+	call	free_queueholder
 	call 	close_file
 	jmp 	main_end
 
@@ -184,7 +186,7 @@ err_alloc_queue:
 
 err_alloc_flexibuff:
 	call	print_alloc_fail_msg
-	call	free_linequeue
+	call	free_queueholder
 	call 	close_file
 	jmp 	main_end
 
@@ -206,7 +208,7 @@ main_end:
 ; Procedure: print_queue
 ;
 print_queue:
-	mov	esi, [linequeue]	
+	mov	esi, [queue]	
 	mov	eax, [queuehead]
 	mov	ebx, eax
 	shl	ebx, 2
@@ -220,7 +222,6 @@ print_queue:
 
 print_start_to_head:
 	mov	ebx, 0	
-	mov	edi, [esi + ebx]
 	mov	ecx, [queuehead] 
 	call	print_part_queue
 	ret
@@ -232,13 +233,13 @@ print_part_queue:
 loop_part_queue:	
 	push 	ecx
 	push	ebx
+	mov	edi, [esi + ebx]
 	lea	ecx, [edi + 4]
 	mov	edx, [edi]
 	call 	printn_msg
 	pop	ebx
 	pop	ecx
 	add	ebx, 4
-	mov	edi, [esi + ebx]
 	dec	ecx
 	jnz	loop_part_queue
 	ret
@@ -289,10 +290,10 @@ close_file:
 	ret	
 
 ;
-; Procedure: free_linequeue
+; Procedure: free_queueholder
 ;
-free_linequeue:
-	push 	dword [linequeue]
+free_queueholder:
+	push 	dword [queue]
 	call 	free
 	add 	esp, 4
 	ret
@@ -305,6 +306,28 @@ free_flexibuff:
 	call 	free
 	add 	esp, 4
 	ret
+
+;
+; Procedure: free_each_queue_element
+;
+free_each_queue_element:
+	mov	esi, [queue]
+	mov	ecx, [nr_lines]
+for_each_element:	
+	push	ecx
+	push	esi
+	push	dword [esi]
+	call	free
+	add	esp, 4
+	pop	esi
+	pop	ecx
+	add	esi, 4
+	dec	ecx
+	jnz	for_each_element
+
+	ret
+
+
 
 ;
 ; Procedure:	print_fname
@@ -333,6 +356,14 @@ print_alloc_fail_msg:
 	call	printn_msg
 	ret
 
+;
+; 
+;
+dbg_print_reallocing:
+	mov	ecx, dbg_msg_reallocing
+	mov	edx, dbg_msg_len_reallocing
+	call 	printn_msg
+	ret
 
 segment .data
 	argc 		dd 0
@@ -340,7 +371,7 @@ segment .data
 	fnameptr 	dd 0
 	fnamelen 	dd 0
 	fd	 	dd 0
-	linequeue 	dd 0	; Ptr to ptr to lines
+	queue 		dd 0	; Ptr to ptr to lines
 	queuehead	dd 0
 	nr_lines	dd 10	; Read last n lines (default = 10)
 	singlech	db 0
@@ -356,3 +387,5 @@ segment .data
 	err_msg_len_read 	equ ($ - err_msg_file_open)
 	err_msg_alloc_fail 	db "Memory allocation/reallocation failed!"
 	err_msg_len_alloc_fail equ ($ - err_msg_alloc_fail)
+	dbg_msg_reallocing 	db "Reallocing"
+	dbg_msg_len_reallocing 	equ ($ - dbg_msg_reallocing)

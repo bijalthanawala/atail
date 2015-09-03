@@ -5,7 +5,9 @@ TODO:
   Enable cmd line arg to accept different number of lines
   Find way to access std C variable errno
   Handle EINTR while reading the file
-  Find way to enable valgrind tool on 32bit app and detect any unknown mem leaks
+  As part of learning, enable alternate methods of invoking Linux system call (syscall, VDSO)
+  Generate test cases, improve code coverage 
+  Handle overflow limits gracefully (Number of lines > 2^32, Filesize > 2^32)
 	
 
 - 32bit:Implement tail reading the file backwards (suitable for large files)
@@ -19,7 +21,8 @@ TODO:
 DONE:
 - 32bit: Implement tail reading the file forwards.
   This is an intuitive natural method, but from the perspective
-  of implementation it inefficient and complex, but the complexity
+  of implementation it is inefficient and complex, but the complexity
   makes this very good for an exercise.
   Basic implementation complete.
+  Enabled valgrind tool on 32bit app and fixed mem leaks and out-of-bound array access
 

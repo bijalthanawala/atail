@@ -9,8 +9,7 @@ This is purely a learning exercise to:
 (a) refresh 32-bit assembly, and 
 (b) learn 64-bit assembly
 
-At this stage targeted functionality
-is bare minimum expected of `tail`
+At this stage targeted functionality is bare minimum expected of `tail`
 
 Invitation is open. 
 Learn and contribute - in either order.
